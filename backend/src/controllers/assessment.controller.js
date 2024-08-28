@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { AsyncHandler } from "../utils/AsyncHandler";
 
 
-const getAssessments = AsyncHandler(async (req, res) => {
+const getAllAssessments = AsyncHandler(async (req, res) => {
     const userId = req.user?._id;
     try {
         const assessments = await Assessment.find({ creatorId: userId });
@@ -64,6 +64,43 @@ const createAssessment = AsyncHandler(async (req, res) => {
 })
 
 
+const getAssessment = AsyncHandler(async (req, res) => {
+    const { id } = req.params
+    const assessment = await Assessment.findById(id)
+    if (!assessment) {
+        return res.status(404).json({ message: 'Assessment not found' });
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, assessment, 'Assessment retrieved successfully'))
+})
+
+
+const updateAssessment = AsyncHandler(async (req, res) => {
+    const updatedAssessment = await Assessment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedAssessment) {
+        return res.status(404).json({ message: 'Assessment not found' });
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, updateAssessment, "Assessment updated successfully"))
+})
+
+
+const deleteAssessment = AsyncHandler(async (req, res) => {
+    const deletedAssessment = await Assessment.findByIdAndDelete(req.params.id);
+    if (!deletedAssessment) {
+        return res.status(404).json({ message: 'Assessment not found' });
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Assessment deleted successfully"))
+})
+
+
 const searchAssessments = AsyncHandler(async (req, res) => {
     const { query } = req.query
     const userId = req.user?._id
@@ -107,4 +144,4 @@ const filterAssessments = AsyncHandler(async (req, res) => {
 })
 
 
-export { getAssessments, createAssessment, searchAssessments, filterAssessments }
+export { getAllAssessments, createAssessment, getAssessment, updateAssessment, deleteAssessment, searchAssessments, filterAssessments }
