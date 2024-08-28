@@ -26,10 +26,14 @@ app.use(cookieParser())
 
 // import routes
 import userRoutes from "./routes/user.route.js"
+import assessmentRoutes from "./routes/assessment.route.js"
+import questionRoutes from "./routes/question.route.js"
 
 
 // declare routes
-app.use("/api/v1/user", userRoutes)
+app.use("/api/v1/users", userRoutes)
+app.use("/api/v1/assessments", assessmentRoutes)
+app.use("/api/v1/questions", questionRoutes)
 
 
 export { app };
