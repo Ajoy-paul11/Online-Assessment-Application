@@ -100,8 +100,7 @@ const deleteQuestion = AsyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, questionDeleted, "Question has deleted successfully"))
-
+        .json(new ApiResponse(200, {}, "Question has deleted successfully"))
 
 })
 
