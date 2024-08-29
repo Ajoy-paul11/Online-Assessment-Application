@@ -70,9 +70,34 @@ const submitAssessment = AsyncHandler(async (req, res) => {
     let score = 0;
     const gradedAnswers = await Promise.all(answers.map(async (answer) => {
         const question = assessment.questions.find(q => q._id.toString() === answer.questionId);
-        const isCorrect = question.correctAnswer === answer.answer;
-        if (isCorrect) score += question.points;
-        return { ...answer, isCorrect };
+
+        if (!question) {
+            return { ...answer, isCorrect: false, error: "Question not found" };
+        }
+
+        let isCorrect = false;
+
+        switch (question.type) {
+            case 'multiple choice':
+                isCorrect = question.correctAnswer === answer.answer;
+                break;
+            case 'short answer':
+                // For short answers, you might want to implement a more flexible comparison
+                isCorrect = question.correctAnswer.toLowerCase() === answer.answer.toLowerCase();
+                break;
+            case 'essay':
+                // Essays typically require manual grading
+                isCorrect = null; // Indicates manual grading needed
+                break;
+            default:
+                return { ...answer, isCorrect: false, error: "Unknown question type" };
+        }
+
+        if (isCorrect) {
+            score += question.points || 0; // Add points if correct, default to 0 if points not specified
+        }
+
+        return { ...answer };
     }));
 
     studentAssessment.answers = gradedAnswers;
