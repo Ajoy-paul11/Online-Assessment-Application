@@ -19,6 +19,7 @@ const userSchema = new Schema({
     },
     role: {
         type: String,
+        enum: ["teacher", "student"],
         required: true
     },
     token: {

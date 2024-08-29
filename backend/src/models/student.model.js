@@ -34,7 +34,16 @@ const studentAssessmentSchema = new Schema({
         type: String,
         enum: ['in-progress', 'submitted', 'graded'],
         default: 'in-progress'
-    }
+    },
+    teacherFeedback: {
+        overallComment: String,
+        grade: Number,
+        feedbackDate: Date
+    },
+    attempts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'StudentAssessment'
+    }]
 
 }, { timestamps: true })
 
