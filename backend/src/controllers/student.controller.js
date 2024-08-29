@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Assessment } from "../models/assessment.model.js";
 import { StudentAssessment } from "../models/studentAssessment.model.js";
 import { Question } from "../models/question.model.js";
+import { Submission } from "../models/submission.model.js"
 
 
 const startAssessment = AsyncHandler(async (req, res) => {
@@ -67,47 +68,34 @@ const submitAssessment = AsyncHandler(async (req, res) => {
 
     const assessment = await Assessment.findById(assessmentId).populate('questions');
 
+    answers.forEach(answer => {
+        const questionIndex = studentProgress.answers.findIndex(a => a.questionId.toString() === answer.questionId);
+        if (questionIndex !== -1) {
+            studentProgress.answers[questionIndex].answer = answer.answer;
+        }
+    });
+
+    // Calculate score
     let score = 0;
-    const gradedAnswers = await Promise.all(answers.map(async (answer) => {
-        const question = assessment.questions.find(q => q._id.toString() === answer.questionId);
-
-        if (!question) {
-            return { ...answer, isCorrect: false, error: "Question not found" };
+    const questions = await Question.find({ _id: { $in: assessment.questions } });
+    studentAssessment.answers.forEach(answer => {
+        const question = questions.find(q => q._id.toString() === answer.questionId.toString());
+        if (question && question.correctAnswer === answer.answer) {
+            score++;
         }
+    });
 
-        let isCorrect = false;
-
-        switch (question.type) {
-            case 'multiple choice':
-                isCorrect = question.correctAnswer === answer.answer;
-                break;
-            case 'short answer':
-                // For short answers, you might want to implement a more flexible comparison
-                isCorrect = question.correctAnswer.toLowerCase() === answer.answer.toLowerCase();
-                break;
-            case 'essay':
-                // Essays typically require manual grading
-                isCorrect = null; // Indicates manual grading needed
-                break;
-            default:
-                return { ...answer, isCorrect: false, error: "Unknown question type" };
-        }
-
-        if (isCorrect) {
-            score += question.points || 0; // Add points if correct, default to 0 if points not specified
-        }
-
-        return { ...answer };
-    }));
-
-    studentAssessment.answers = gradedAnswers;
-    studentAssessment.score = score;
-    studentAssessment.status = 'submitted';
-    await studentAssessment.save();
+    const submission = await Submission.create({
+        studentId,
+        assessmentId,
+        answers: studentAssessment.answers,
+        score,
+        submissionDate: new Date()
+    });
 
     const feedback = assessment.feedbackType === 'immediate' ? studentAssessment : null;
 
-    return res.status(200).json(new ApiResponse(200, feedback, "Assessment submitted successfully"));
+    return res.status(200).json(new ApiResponse(200, submission, "Assessment submitted successfully"));
 });
 
 

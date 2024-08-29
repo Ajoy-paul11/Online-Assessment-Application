@@ -22,7 +22,7 @@ const submissionSchema = new Schema({
     answers: [answerSchema],
     submissionDate: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     score: {
         type: Number
