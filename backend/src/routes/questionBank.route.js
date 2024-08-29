@@ -7,9 +7,12 @@ import {
     importQuestions,
     exportQuestions
 } from "../controllers/questionBank.controller.js"
+import { verifyJWT } from "../middleware/auth.middleware.js"
 
 
 const router = Router()
+
+router.use(verifyJWT)
 
 router.route("/").get(getQuestionBank)
 router.route("/create").post(createQuestion)
