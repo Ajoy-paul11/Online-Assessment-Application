@@ -1,22 +1,22 @@
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { StudentAssessment } from "../models/studentAssessment.model.js";
-import { Assessment } from "../models/assessment.model.js";
+import { Submission } from "../models/submission.model.js";
+import { StudentAssessment } from "../models/student.model.js";
 import { User } from "../models/user.model.js";
 
 const getStudentAssessmentReview = AsyncHandler(async (req, res) => {
     const { assessmentId } = req.params;
     const studentId = req.user._id;
 
-    const studentAssessment = await StudentAssessment.findOne({ studentId, assessmentId })
+    const submission = await Submission.findOne({ studentId, assessmentId })
         .populate('assessmentId')
         .populate('answers.questionId');
 
-    if (!studentAssessment) {
+    if (!submission) {
         return res.status(404).json({ message: "Assessment not found" });
     }
 
-    return res.status(200).json(new ApiResponse(200, studentAssessment, "Assessment review retrieved successfully"));
+    return res.status(200).json(new ApiResponse(200, submission, "Assessment review retrieved successfully"));
 });
 
 
@@ -24,9 +24,9 @@ const getStudentAssessmentAttempts = AsyncHandler(async (req, res) => {
     const { assessmentId } = req.params;
     const studentId = req.user._id;
 
-    const attempts = await StudentAssessment.find({ studentId, assessmentId })
-        .select('score status startTime ')
-        .sort('-createdAt');
+    const attempts = await Submission.find({ studentId, assessmentId })
+        .select('score submissionDate ')
+        .sort('-submissionDate');
 
     return res.status(200).json(new ApiResponse(200, attempts, "Assessment attempts retrieved successfully"));
 });
