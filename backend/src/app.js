@@ -31,6 +31,7 @@ import questionRoutes from "./routes/question.route.js"
 import questionBankRoutes from "./routes/questionBank.route.js"
 import studentAssessmentRoutes from "./routes/student.route.js"
 import studentAssessmentReviewRoutes from "./routes/assessmentReview.route.js"
+import gradeAndReviewRoutes from "./routes/gradeAndReview.route.js"
 
 
 // declare routes
@@ -40,6 +41,7 @@ app.use("/api/v1/questions", questionRoutes)
 app.use("/api/v1/question-bank", questionBankRoutes)
 app.use("/api/v1/student-assessments", studentAssessmentRoutes)
 app.use("/api/v1/student-review", studentAssessmentReviewRoutes)
+app.use("/api/v1/grade-review", gradeAndReviewRoutes)
 
 
 export { app };
